@@ -154,7 +154,12 @@ export const asyncRoutes = [
       }
     ]
   },
-
+  {
+    path: '/user',
+    name: '用户管理',
+    component: () => import('@/views/user/index'),
+    meta: { title: '用户管理', icon: 'table', perms: ['list'] }
+  },
   {
     path: 'external-link',
     component: Layout,

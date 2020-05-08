@@ -34,7 +34,8 @@ router.beforeEach(async(to, from, next) => {
       // if (hasRoles) {
       console.log('hasPerms')
       console.log(hasPerms)
-      if (hasPerms) {
+      // if (hasPerms) {
+      if (loadRoute) {
         console.log('hasPerms true next')
         next()
       } else {
@@ -43,7 +44,7 @@ router.beforeEach(async(to, from, next) => {
           // get user info
           // note: roles must be a object array! such as: ['admin'] or ,['developer','editor']
           // const { roles } = await store.dispatch('user/getInfo')
-          const { perms } = await store.dispatch('user/getPerms')
+          const perms = await store.dispatch('user/getPerms')
           // generate accessible routes map based on roles
           // const accessRoutes = await store.dispatch('permission/generateRoutes', roles)
           const accessRoutes = await store.dispatch('permission/generateRoutes2', perms)

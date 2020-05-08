@@ -83,6 +83,7 @@ const mutations = {
   SET_ROUTES: (state, routes) => {
     state.addRoutes = routes
     state.routes = constantRoutes.concat(routes)
+    state.loadRoute = true
   },
   SET_LOADROUTE: (state, routes) => {
     state.routes = routes

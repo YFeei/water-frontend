@@ -54,7 +54,7 @@
 
 <script>
 import { validUsername } from '@/utils/validate'
-
+import router from '@/router'
 export default {
   name: 'Login',
   data() {
@@ -112,11 +112,16 @@ export default {
           this.$store.dispatch('user/login2', this.loginForm).then((data) => {
             console.log(data)
             console.log('in login2 push')
-            const perms = this.$store.getters.perms
-            const perms2 = this.$store.dispatch('user/getPerms')
-            console.log('perms2222')
-            console.log(perms2)
-            this.$store.dispatch('permission/generateRoutes2', perms)
+            // const perms = this.$store.getters.perms
+            // const perms2 = this.$store.dispatch('user/getPerms')
+            // console.log('perms2222')
+            // console.log(perms2)
+            // const accessRoutes = this.$store.dispatch('permission/generateRoutes2', perms)
+            // console.log('perms3333')
+            // console.log(accessRoutes)
+            // console.log('perms4444')
+            // router.addRoutes(accessRoutes)
+            // console.log('addRoutes')
             this.$router.push({ path: this.redirect || '/' })
             console.log('router push')
             // test
