@@ -14,15 +14,15 @@ import { asyncRoutes, constantRoutes } from '@/router'
 // }
 
 function hasPermission2(perms, route) {
-  console.log('hasPermisssion2')
-  console.log(route)
+  // console.log('hasPermisssion2')
+  // console.log(route)
   if (route.meta && route.meta.perms) {
     // return perms.some(perm => route.meta.perms.includes(perm))
     return route.meta.perms.some(perm => {
       for (let j = 0; j < perms.length; j++) {
         if (perms[j].indexOf(perm) !== -1) {
-          console.log(perms[j])
-          console.log('has perm')
+          // console.log(perms[j])
+          // console.log('has perm')
           return true
         }
       }
@@ -53,22 +53,23 @@ function hasPermission2(perms, route) {
 //
 //   return res
 // }
-
+// 根据perms加载路由
 export function filterAsyncRoutes2(routes, perms) {
   const res = []
-  console.log('filterAsyncRoutes2:' + perms)
+  // console.log('filterAsyncRoutes2:' + perms)
   routes.forEach(route => {
     const tmp = { ...route }
-    console.log('tmp')
-    console.log(tmp)
+    // console.log('tmp')
+    // console.log(tmp)
     if (hasPermission2(perms, tmp)) {
       if (tmp.children) {
+        // 如果有子路由，递归判断加载
         tmp.children = filterAsyncRoutes2(tmp.children, perms)
       }
       res.push(tmp)
     }
   })
-
+  // 返回合法路由
   return res
 }
 
@@ -107,13 +108,16 @@ const actions = {
   //   })
   // },
 
+  // 加载异步路由
   generateRoutes2({ commit }, perms) {
     return new Promise(resolve => {
       let accessedRoutes
       console.log('genrateRoute2:' + perms)
+      // 管理员，直接加入全部异步路由
       if (perms.includes('admin')) {
         accessedRoutes = asyncRoutes || []
       } else {
+        // 其他用户，依次判断是否有页面权限，动态加载目录
         accessedRoutes = filterAsyncRoutes2(asyncRoutes, perms)
       }
       commit('SET_ROUTES', accessedRoutes)

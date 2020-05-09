@@ -27,6 +27,14 @@ export function removeToken() {
   return Cookies.remove(TokenKey)
 }
 
+export function setRToken(token) {
+  localStorage.setItem('RToken', token)
+}
+
+export function getRToken() {
+  return localStorage.getItem('RToken')
+}
+
 export function hasPerm(perms, perm) {
   for (let i = 0; i < perms.length; i++) {
     if (perms[i].indexOf(perm) !== -1) return true

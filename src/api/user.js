@@ -56,3 +56,49 @@ export function getUserList(page = 1, pageSize = 10) {
     params: { page, pageSize }
   })
 }
+
+export function updateUserStatus(id, status) {
+  return request({
+    url: '/sys/user/status',
+    method: 'put',
+    data: { id, status }
+  })
+}
+
+export function getUserById(id) {
+  return request({
+    url: '/sys/user/id/' + id,
+    method: 'get'
+  })
+}
+
+export function updateUser(user) {
+  return request({
+    url: '/sys/user',
+    method: 'put',
+    data: { ...user }
+  })
+}
+
+export function addUser({ user }) {
+  return request({
+    url: '/sys/user',
+    method: 'post',
+    data: { user }
+  })
+}
+
+export function deleteUser(userIds) {
+  return request({
+    url: '/sys/user',
+    method: 'delete',
+    data: { userIds }
+  })
+}
+
+export function getUserByAccount(account) {
+  return request({
+    url: '/sys/user/account/' + account,
+    method: 'get'
+  })
+}

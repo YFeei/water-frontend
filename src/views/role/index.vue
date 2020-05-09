@@ -65,12 +65,12 @@
         </template>
       </el-table-column>
     </el-table>
-    <el-button @click="updateUser({id:2, name:'tttttt1'})" />
+    <el-button @click="updateStatus(12,'有效')" />
   </div>
 </template>
 
 <script>
-import { getUserList, updateUserStatus, updateUser } from '@/api/user'
+import { getUserList, updateUserStatus } from '@/api/user'
 import { hasPerm } from '@/utils/auth'
 
 export default {
@@ -295,18 +295,11 @@ export default {
           this.userList[index].status = row.status === '有效' ? '无效' : '有效'
         }
       })
-    },
-    updateUser(user) {
-      user.id = 5
-      user.username = 'testtest1'
-      user.account = 'test1'
-      user.password = 'password'
-      user.rId = '1'
-      user.status = '有效'
-      updateUser(user).then(resp => {
-        console.log(resp)
-      })
     }
   }
 }
 </script>
+
+<style scoped>
+
+</style>

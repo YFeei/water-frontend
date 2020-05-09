@@ -91,8 +91,10 @@ service.interceptors.response.use(
       //   })
       // }
       if (res.code === 4003) {
+        console.log('code 4003')
         const refreshToken = store.getter.refreshToken
         if (refreshToken && refreshToken !== '' && !isRefreshing) {
+          console.log('RToken存在，获取新的Token')
           isRefreshing = true
           return loginByRToken(refreshToken).then(resp => {
             const AToken = resp.data.data.accessToken
@@ -115,7 +117,7 @@ service.interceptors.response.use(
       }
       return Promise.reject(new Error(res.message || 'Error'))
     } else {
-      const t = res.data.atExpire
+      const t = res.atExpire
       if (t) {
         store.commit('user/SET_T', res.s)
       }

@@ -22,7 +22,9 @@ router.beforeEach(async(to, from, next) => {
   const hasAToken = getAToken()
   const loadRoute = store.getters.loadRoute
   console.log('loadRoute:' + loadRoute)
+  // 如果有AToken，进入下一步，否则跳到登陆界面
   if (hasAToken) {
+    // 登陆界面，无需判断权限
     if (to.path === '/login') {
       // if is logged in, redirect to the home page
       next({ path: '/' })
@@ -35,10 +37,12 @@ router.beforeEach(async(to, from, next) => {
       console.log('hasPerms')
       console.log(hasPerms)
       // if (hasPerms) {
+      // 如果异步路由没加载过，进入首次加载流程
       if (loadRoute) {
         console.log('hasPerms true next')
         next()
       } else {
+        // 首次加载路由
         try {
           console.log('enter else')
           // get user info
@@ -65,7 +69,7 @@ router.beforeEach(async(to, from, next) => {
     }
   } else {
     /* has no token*/
-
+    // 没有AToken，跳入上一页或者登陆界面
     if (whiteList.indexOf(to.path) !== -1) {
       // in the free login whitelist, go directly
       next()
