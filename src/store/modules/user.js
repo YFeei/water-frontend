@@ -1,5 +1,5 @@
 import { login, login2, logout, getInfo, getPerms } from '@/api/user'
-import { getToken, setToken, removeToken, setAToken, removeAToken } from '@/utils/auth'
+import { getToken, setToken, removeToken, setAToken, removeAToken, getAToken } from '@/utils/auth'
 import { resetRouter } from '@/router'
 
 const getDefaultState = () => {
@@ -8,11 +8,12 @@ const getDefaultState = () => {
     name: '',
     avatar: '',
     roles: [],
-    accessToken: '',
+    accessToken: getAToken(),
     refreshToken: '',
     t: '',
     perms: [],
-    userInfo: {}
+    userInfo: {},
+    cachePerms: false
   }
 }
 
@@ -50,6 +51,9 @@ const mutations = {
   },
   SET_USERINFO: (state, userInfo) => {
     state.userInfo = userInfo
+  },
+  SET_CACHEPERMS: (state, result) => {
+    state.cachePerms = result
   }
 }
 
@@ -120,7 +124,8 @@ const actions = {
     return new Promise((resolve, reject) => {
       console.log('enter getPerms store')
       console.log(state.perms)
-      if (state.perms && state.perms.length >= 0) {
+      // if (state.perms && state.perms.length > 0) {
+      if (state.cachePerms) {
         console.log('cache perms')
         resolve(state.perms)
       } else {
@@ -134,6 +139,7 @@ const actions = {
             reject('getInfo: roles must be a non-null array!')
           }
           commit('SET_PERMS', perms)
+          commit('SET_CACHEPERMS', true)
           console.log('getHttpPerms')
           console.log(perms)
           resolve(perms)

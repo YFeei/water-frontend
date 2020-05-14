@@ -1,34 +1,36 @@
 <template>
   <div class="app-container">
-    <el-form :inline="true" style="float:left;margin-left: 3%" @keyup.enter.native="searchFile">
-      <el-form-item>
+    <!--<el-data :inline="true" style="float:left;margin-left: 3%">
+      <el-data-item>
         <el-input
           v-model="searchValue"
           size="small"
-          placeholder="输入用户名"
+          placeholder="输入权限名"
           prefix-icon="el-icon-search"
           clearable
           @input="getRecords"
         />
-      </el-form-item>
-      <el-form-item>
-        <!--        <el-button size="small" type="success" @click="searchFile">搜索</el-button>-->
+      </el-data-item>
+      <el-data-item>
+        &lt;!&ndash;        <el-button size="small" type="success" @click="searchFile">搜索</el-button>&ndash;&gt;
         <el-button size="small" @click="clearSearch">重置</el-button>
-      </el-form-item>
-    </el-form>
+      </el-data-item>
+    </el-data>-->
     <el-form :inline="true" style="float:right;margin-right: 2%;">
       <el-form-item>
-        <el-button type="success" size="small" @click="addRecord">创建用户</el-button>
+        <el-button type="success" size="small" @click="addRecord">新建权限</el-button>
         <el-button type="danger" size="small" :disabled="recordsSelections.length<=0" @click="deleteAll()">批量删除</el-button>
       </el-form-item>
     </el-form>
     <el-table
       v-loading="listLoading"
-      :data="data.records"
+      :data="data"
+      row-key="id"
       style="width: 100%;"
       :cell-style="{paddingTop:'10px',paddingBottom:'10px'}"
-
+      :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
       @selection-change="selectionChangeHandle"
+      :default-sort = "{prop: 'seq', order: 'descending'}"
     >
       <el-table-column
         type="selection"
@@ -39,27 +41,76 @@
       <el-table-column
         header-align="left"
         align="left"
-        width="300"
-        label="用户名"
+        width="220"
+        label="权限名称"
       >
         <template slot-scope="scope">
-          {{ scope.row.username }}
+          {{ scope.row.name }}
+        </template>
+      </el-table-column>
+      <el-table-column
+        header-align="left"
+        align="left"
+        width="120"
+        label="权限url"
+      >
+        <template slot-scope="scope">
+          {{ scope.row.url }}
+        </template>
+      </el-table-column>
+      <el-table-column
+        header-align="left"
+        align="left"
+        width="120"
+        label="权限编码"
+      >
+        <template slot-scope="scope">
+          {{ scope.row.perm }}
+        </template>
+      </el-table-column>
+      <el-table-column
+        header-align="left"
+        align="left"
+        width="100"
+        label="类型"
+      >
+        <template slot-scope="scope">
+          <el-tag  :type="getTypeTag(scope.row.type)">{{ scope.row.type }}</el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column
+        header-align="left"
+        align="left"
+        width="100"
+        label="优先度"
+        sortable
+        prop="seq"
+      >
+      </el-table-column>
+      <el-table-column
+        header-align="center"
+        align="center"
+        width="100"
+        label="创建时间"
+      >
+        <template slot-scope="scope">
+          {{ scope.row.createTime }}
         </template>
       </el-table-column>
       <el-table-column
         header-align="center"
         align="center"
-        label="联系电话"
+        width="100"
+        label="更新时间"
       >
         <template slot-scope="scope">
-          {{ scope.row.telephone }}
+          {{ scope.row.updateTime }}
         </template>
       </el-table-column>
       <el-table-column
-        fixed="right"
         header-align="center"
         align="center"
-        width="300"
+        width="50"
         label="状态"
       >
         <template slot-scope="scope">
@@ -81,30 +132,19 @@
         label="操作"
       >
         <template slot-scope="scope">
-          <el-button type="primary" plain size="small" @click="getRecordDetail(scope.row)">用户详情</el-button>
+          <el-button type="success" plain size="small" @click="getRecordDetail(scope.row)">添加子权限</el-button>
           <el-button type="warning" plain size="small" @click="updateRecord(scope.row)">编辑</el-button>
           <el-button type="danger" plain size="small" @click="deleteOne(scope.row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
-    <el-pagination
-      :current-page.sync="data.current"
-      :hide-on-single-page="data.pages>1"
-      :page-sizes="[5, 10, 15, 20, 25, 30]"
-      layout="total, prev, pager, next, sizes"
-      :total="data.total"
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
-    />
-<!--    <el-button @click="test()" />-->
-    <userInfo v-if="userInfoVisible" ref="userInfo" @refreshList="getRecords" />
+    <el-button @click="test()" />
   </div>
 </template>
 
 <script>
-import { getUserList, updateUserStatus, deleteUser } from '@/api/user'
+import { getPermList, updatePermStatus, updatePerm, deletePerm } from '@/api/perm'
 import { hasPerm } from '@/utils/auth'
-import userInfo from './userInfo'
 
 export default {
   filters: {
@@ -119,20 +159,13 @@ export default {
   },
   data() {
     return {
-      field: 'username',
+      field: 'name',
       searchValue: '',
       list: null,
       listLoading: false,
-      data: {
-        current: 1,
-        size: 10
-      },
-      recordsSelections: '',
-      userInfoVisible: false
+      data: [],
+      recordsSelections: ''
     }
-  },
-  components: {
-    userInfo
   },
   created() {
     this.getRecords()
@@ -145,8 +178,9 @@ export default {
       if (this.searchValue !== '') {
         params[this.field] = this.searchValue
       }
-      getUserList(this.data.current, this.data.size, params).then(response => {
-        this.userList = response.data.records
+      getPermList().then(response => {
+        console.log(response)
+        this.permList = response.data
         this.data = response.data
         this.listLoading = false
       })
@@ -164,9 +198,9 @@ export default {
     },
     updateStatus(index, row) {
       console.log('update' + row.id + ' ' + row.status)
-      updateUserStatus(row.id, row.status).then(response => {
+      updatePermStatus(row.id, row.status).then(response => {
         if (response.code !== 4001) {
-          this.userList[index].status = row.status === '有效' ? '无效' : '有效'
+          this.permList[index].status = row.status === '有效' ? '无效' : '有效'
         }
       })
     },
@@ -176,29 +210,24 @@ export default {
     },
     getRecordDetail(record) {},
     updateRecord(record) {
-      /* record.id = 5
+      record.id = 5
       record.username = 'testtest1'
       record.account = 'test1'
       record.password = 'password'
       record.rId = '1'
       record.status = '有效'
-      updateUser(record).then(resp => {
+      updatePerm(record).then(resp => {
         console.log(resp)
-      })*/
-      this.userInfoVisible = true
-      setTimeout(() => { this.$refs.userInfo.init1('update', record) }, 10)
+      })
     },
-    addRecord() {
-      this.userInfoVisible = true
-      setTimeout(() => { this.$refs.userInfo.init1('add', {}) }, 20)
-    },
+    addRecord() {},
     deleteOne(record) {
       this.$confirm('此操作将永久删除该记录, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        deleteUser({ userIds: record.id }).then(resp => {
+        deletePerm({ userIds: record.id }).then(resp => {
           if (resp.code === 4001) {
             this.$message({
               message: '删除成功',
@@ -223,7 +252,7 @@ export default {
           idList.push(item.id)
         }
         console.log(idList.join(','))
-        deleteUser({ userIds: idList.join(',').toString() }).then(resp => {
+        deletePerm({ userIds: idList.join(',').toString() }).then(resp => {
           if (resp.code === 4001) {
             this.$message({
               message: '删除成功',
@@ -242,8 +271,16 @@ export default {
         })
       })
     },
+    addRole() {},
     test() {
       hasPerm('sys')
+    },
+    getTypeTag(type) {
+      switch (type) {
+        case '按钮': return 'success'
+        case '菜单': return 'primary'
+        case '数据': return 'info'
+      }
     }
   }
 }

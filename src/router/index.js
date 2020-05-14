@@ -167,6 +167,30 @@ export const asyncRoutes = [
     ]
   },
   {
+    path: '/role',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        name: '角色管理',
+        component: () => import('@/views/role/index'),
+        meta: { title: '角色管理', icon: 'table', perms: ['list'] }
+      }
+    ]
+  },
+  {
+    path: '/perm',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        name: '权限管理',
+        component: () => import('@/views/perm/index'),
+        meta: { title: '权限管理', icon: 'table', perms: ['list'] }
+      }
+    ]
+  },
+  {
     path: 'external-link',
     component: Layout,
     children: [

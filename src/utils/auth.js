@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie'
-
+import store from '@/store'
 const TokenKey = 'vue_admin_template_token'
 const AToken = 'accessToken'
 
@@ -35,7 +35,15 @@ export function getRToken() {
   return localStorage.getItem('RToken')
 }
 
-export function hasPerm(perms, perm) {
+/* export function hasPerm(perms, perm) {
+  for (let i = 0; i < perms.length; i++) {
+    if (perms[i].indexOf(perm) !== -1) return true
+  }
+  return false
+}*/
+
+export function hasPerm(perm) {
+  const perms = store.getters.perms
   for (let i = 0; i < perms.length; i++) {
     if (perms[i].indexOf(perm) !== -1) return true
   }

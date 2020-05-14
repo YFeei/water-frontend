@@ -1,8 +1,30 @@
 <template>
   <div class="app-container">
+    <el-form :inline="true" style="float:left;margin-left: 3%">
+      <el-form-item>
+        <el-input
+          v-model="searchValue"
+          size="small"
+          placeholder="输入角色名"
+          prefix-icon="el-icon-search"
+          clearable
+          @input="getRecords"
+        />
+      </el-form-item>
+      <el-form-item>
+        <!--        <el-button size="small" type="success" @click="searchFile">搜索</el-button>-->
+        <el-button size="small" @click="clearSearch">重置</el-button>
+      </el-form-item>
+    </el-form>
+    <el-form :inline="true" style="float:right;margin-right: 2%;">
+      <el-form-item>
+        <el-button type="success" size="small" @click="addRecord">创建角色</el-button>
+        <el-button type="danger" size="small" :disabled="recordsSelections.length<=0" @click="deleteAll()">批量删除</el-button>
+      </el-form-item>
+    </el-form>
     <el-table
-      v-loading="ListLoading"
-      :data="userList"
+      v-loading="listLoading"
+      :data="data.records"
       style="width: 100%;"
       :cell-style="{paddingTop:'10px',paddingBottom:'10px'}"
 
@@ -18,19 +40,27 @@
         header-align="left"
         align="left"
         width="300"
-        label="用户名"
+        label="角色名"
       >
         <template slot-scope="scope">
-          {{ scope.row.username }}
+          {{ scope.row.name }}
         </template>
       </el-table-column>
       <el-table-column
         header-align="center"
         align="center"
-        label="联系电话"
+        label="创建时间"
       >
         <template slot-scope="scope">
-          {{ scope.row.telephone }}
+          {{ scope.row.createTime }}
+        </template>
+      </el-table-column><el-table-column
+        header-align="center"
+        align="center"
+        label="更新时间"
+      >
+        <template slot-scope="scope">
+          {{ scope.row.updateTime }}
         </template>
       </el-table-column>
       <el-table-column
@@ -59,18 +89,27 @@
         label="操作"
       >
         <template slot-scope="scope">
-          <el-button type="primary" plain size="small" @click="showFileInfo(scope.row)">用户详情</el-button>
-          <el-button type="warning" plain size="small" @click="enterFile(scope.row)">编辑</el-button>
+          <el-button type="primary" plain size="small" @click="getRecordDetail(scope.row)">角色详情</el-button>
+          <el-button type="warning" plain size="small" @click="updateRecord(scope.row)">编辑</el-button>
           <el-button type="danger" plain size="small" @click="deleteOne(scope.row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
-    <el-button @click="updateStatus(12,'有效')" />
+    <el-pagination
+      :current-page.sync="data.current"
+      :hide-on-single-page="data.pages>1"
+      :page-sizes="[5, 10, 15, 20, 25, 30]"
+      layout="total, prev, pager, next, sizes"
+      :total="data.total"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+    />
+    <el-button @click="test()" />
   </div>
 </template>
 
 <script>
-import { getUserList, updateUserStatus } from '@/api/user'
+import { getRoleList, updateRoleStatus, updateRole, deleteRole } from '@/api/role'
 import { hasPerm } from '@/utils/auth'
 
 export default {
@@ -86,220 +125,124 @@ export default {
   },
   data() {
     return {
-      userList: [
-        {
-          'editorId': null,
-          'sessionKey': null,
-          'openId': '1',
-          'telephone': '12334445',
-          'updateTime': '2019-10-10 00:04:08',
-          'rId': '2',
-          'orgId': 1,
-          'companyId': 1,
-          'password': '123',
-          'deleted': 0,
-          'createTime': '2019-10-10 00:04:08',
-          'deleteTime': null,
-          'id': 1,
-          'account': 'yfeei',
-          'status': 'VALID_STATUS',
-          'username': 'yfeei'
-        },
-        {
-          'editorId': null,
-          'sessionKey': null,
-          'openId': null,
-          'telephone': '1234345667',
-          'updateTime': '2019-10-20 07:22:59',
-          'rId': '1',
-          'orgId': 1,
-          'companyId': 1,
-          'password': '123456',
-          'deleted': 0,
-          'createTime': '2019-10-20 07:22:59',
-          'deleteTime': null,
-          'id': 3,
-          'account': 'yefei',
-          'status': 'INVALID_STATUS',
-          'username': 'yefei'
-        },
-        {
-          'editorId': null,
-          'sessionKey': null,
-          'openId': null,
-          'telephone': '98765432109',
-          'updateTime': '2019-11-09 05:48:28',
-          'rId': '1',
-          'orgId': 0,
-          'companyId': 0,
-          'password': '0',
-          'deleted': 0,
-          'createTime': '2019-11-09 05:48:28',
-          'deleteTime': null,
-          'id': 4,
-          'account': 'test0',
-          'status': 'VALID_STATUS',
-          'username': 'test0'
-        },
-        {
-          'editorId': null,
-          'sessionKey': null,
-          'openId': null,
-          'telephone': '98765432109',
-          'updateTime': '2019-11-09 05:48:28',
-          'rId': '1',
-          'orgId': 1,
-          'companyId': 1,
-          'password': '1',
-          'deleted': 0,
-          'createTime': '2019-11-09 05:48:28',
-          'deleteTime': null,
-          'id': 5,
-          'account': 'test1',
-          'status': 'VALID_STATUS',
-          'username': 'test1'
-        },
-        {
-          'editorId': null,
-          'sessionKey': null,
-          'openId': null,
-          'telephone': '98765432109',
-          'updateTime': '2019-11-09 05:48:28',
-          'rId': '1',
-          'orgId': 2,
-          'companyId': 2,
-          'password': '2',
-          'deleted': 0,
-          'createTime': '2019-11-09 05:48:28',
-          'deleteTime': null,
-          'id': 6,
-          'account': 'test2',
-          'status': 'VALID_STATUS',
-          'username': 'test2'
-        },
-        {
-          'editorId': null,
-          'sessionKey': null,
-          'openId': null,
-          'telephone': '98765432109',
-          'updateTime': '2019-11-09 05:48:28',
-          'rId': '1',
-          'orgId': 3,
-          'companyId': 3,
-          'password': '3',
-          'deleted': 0,
-          'createTime': '2019-11-09 05:48:28',
-          'deleteTime': null,
-          'id': 7,
-          'account': 'test3',
-          'status': 'VALID_STATUS',
-          'username': 'test3'
-        },
-        {
-          'editorId': null,
-          'sessionKey': null,
-          'openId': null,
-          'telephone': '98765432109',
-          'updateTime': '2019-11-09 05:48:28',
-          'rId': '1',
-          'orgId': 4,
-          'companyId': 4,
-          'password': '4',
-          'deleted': 0,
-          'createTime': '2019-11-09 05:48:28',
-          'deleteTime': null,
-          'id': 8,
-          'account': 'test4',
-          'status': 'VALID_STATUS',
-          'username': 'test4'
-        },
-        {
-          'editorId': null,
-          'sessionKey': null,
-          'openId': null,
-          'telephone': '98765432109',
-          'updateTime': '2019-11-09 05:48:29',
-          'rId': '1',
-          'orgId': 0,
-          'companyId': 5,
-          'password': '5',
-          'deleted': 0,
-          'createTime': '2019-11-09 05:48:29',
-          'deleteTime': null,
-          'id': 9,
-          'account': 'test5',
-          'status': 'VALID_STATUS',
-          'username': 'test5'
-        },
-        {
-          'editorId': null,
-          'sessionKey': null,
-          'openId': null,
-          'telephone': '98765432109',
-          'updateTime': '2019-11-09 05:48:29',
-          'rId': '1',
-          'orgId': 1,
-          'companyId': 6,
-          'password': '6',
-          'deleted': 0,
-          'createTime': '2019-11-09 05:48:29',
-          'deleteTime': null,
-          'id': 10,
-          'account': 'test6',
-          'status': 'VALID_STATUS',
-          'username': 'test6'
-        },
-        {
-          'editorId': null,
-          'sessionKey': null,
-          'openId': null,
-          'telephone': '98765432109',
-          'updateTime': '2019-11-09 05:48:29',
-          'rId': '1',
-          'orgId': 2,
-          'companyId': 7,
-          'password': '7',
-          'deleted': 0,
-          'createTime': '2019-11-09 05:48:29',
-          'deleteTime': null,
-          'id': 11,
-          'account': 'test7',
-          'status': 'VALID_STATUS',
-          'username': 'test7'
-        }
-      ],
+      field: 'name',
+      searchValue: '',
       list: null,
-      ListLoading: false,
-      userListSeclections: ''
+      listLoading: false,
+      data: {
+        current: 1,
+        size: 10
+      },
+      recordsSelections: ''
     }
   },
   created() {
-    this.fetchData()
+    this.getRecords()
   },
   methods: {
-    fetchData() {
+    getRecords() {
       console.log('perm:' + hasPerm(this.$store.getters.perms, 'list1'))
       this.listLoading = true
-      getUserList(1, 10).then(response => {
+      const params = {}
+      if (this.searchValue !== '') {
+        params[this.field] = this.searchValue
+      }
+      getRoleList(this.data.current, this.data.size, params).then(response => {
         this.userList = response.data.records
+        this.data = response.data
         this.listLoading = false
       })
     },
     selectionChangeHandle(val) {
-      this.userListSelections = val
+      this.recordsSelections = val
+    },
+    handleSizeChange(val) {
+      this.data.size = val
+      this.getRecords()
+    },
+    handleCurrentChange(val) {
+      this.data.current = val
+      this.getRecords()
     },
     updateStatus(index, row) {
       console.log('update' + row.id + ' ' + row.status)
-      updateUserStatus(row.id, row.status).then(response => {
+      updateRoleStatus(row.id, row.status).then(response => {
         if (response.code !== 4001) {
           this.userList[index].status = row.status === '有效' ? '无效' : '有效'
         }
       })
+    },
+    clearSearch() {
+      this.searchValue = ''
+      this.getRecords()
+    },
+    getRecordDetail(record) {},
+    updateRecord(record) {
+      record.id = 5
+      record.username = 'testtest1'
+      record.account = 'test1'
+      record.password = 'password'
+      record.rId = '1'
+      record.status = '有效'
+      updateRole(record).then(resp => {
+        console.log(resp)
+      })
+    },
+    addRecord() {},
+    deleteOne(record) {
+      this.$confirm('此操作将永久删除该记录, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        deleteRole({ userIds: record.id }).then(resp => {
+          if (resp.code === 4001) {
+            this.$message({
+              message: '删除成功',
+              type: 'success',
+              duration: 1000
+            })
+            this.getRecords()
+          }
+        })
+      })
+    },
+    deleteAll() {
+      console.log(this.recordsSelections)
+      this.$confirm('此操作将永久删除该记录, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.ListLoading = true
+        const idList = []
+        for (const item of this.recordsSelections) {
+          idList.push(item.id)
+        }
+        console.log(idList.join(','))
+        deleteRole({ userIds: idList.join(',').toString() }).then(resp => {
+          if (resp.code === 4001) {
+            this.$message({
+              message: '删除成功',
+              type: 'success',
+              duration: 1000
+            })
+            this.getRecords()
+          } else {
+            this.$message({
+              message: '删除失败',
+              type: 'error',
+              duration: 1000
+            })
+          }
+          this.ListLoading = false
+        })
+      })
+    },
+    addRole() {},
+    test() {
+      hasPerm('sys')
     }
   }
 }
 </script>
-
-<style scoped>
-
-</style>

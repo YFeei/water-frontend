@@ -65,10 +65,10 @@ export default {
     }
   },
   created() {
-    this.fetchData()
+    this.getRecords()
   },
   methods: {
-    fetchData() {
+    getRecords() {
       console.log('perm:' + hasPerm(this.$store.getters.perms, 'list1'))
       this.listLoading = true
       getUserList(2, 10).then(response => {

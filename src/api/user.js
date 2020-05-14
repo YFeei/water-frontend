@@ -1,5 +1,4 @@
 import request from '@/utils/request'
-import qs from 'qs'
 
 export function login(data) {
   return request({
@@ -49,11 +48,15 @@ export function loginByRToken(refreshToken) {
   })
 }
 
-export function getUserList(page = 1, pageSize = 10) {
+export function getUserList(page = 1, pageSize = 10, search) {
+  const params = { page, pageSize }
+  for (const key in search) {
+    params[key] = search[key]
+  }
   return request({
     url: 'sys/user',
     method: 'get',
-    params: { page, pageSize }
+    params: params
   })
 }
 
@@ -80,11 +83,11 @@ export function updateUser(user) {
   })
 }
 
-export function addUser({ user }) {
+export function addUser(user) {
   return request({
     url: '/sys/user',
     method: 'post',
-    data: { user }
+    data: { ...user }
   })
 }
 
@@ -92,7 +95,8 @@ export function deleteUser(userIds) {
   return request({
     url: '/sys/user',
     method: 'delete',
-    data: { userIds }
+    type: 'POST',
+    params: userIds
   })
 }
 

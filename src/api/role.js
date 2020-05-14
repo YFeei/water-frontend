@@ -1,10 +1,14 @@
 import request from '@/utils/request'
 
-export function getRoleList(page = 1, pageSize = 10) {
+export function getRoleList(page = 1, pageSize = 10, search) {
+  const params = { page, pageSize }
+  for (const key in search) {
+    params[key] = search[key]
+  }
   return request({
     url: 'sys/role',
     method: 'get',
-    params: { page, pageSize }
+    params: params
   })
 }
 
@@ -35,5 +39,22 @@ export function updateRole({ role }) {
     url: '/sys/role',
     method: 'put',
     data: { role }
+  })
+}
+
+export function addRole({ role }) {
+  return request({
+    url: '/sys/role',
+    method: 'post',
+    data: { role }
+  })
+}
+
+export function deleteRole(roleIds) {
+  return request({
+    url: '/sys/user',
+    method: 'delete',
+    type: 'POST',
+    params: roleIds
   })
 }

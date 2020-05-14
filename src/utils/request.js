@@ -44,6 +44,7 @@ service.interceptors.request.use(
       config.headers['accessToken'] = store.getters.accessToken
     }
     config.data = qs.stringify(config.data)
+    // config.data = JSON.stringify(config.data)
     return config
   },
   error => {
