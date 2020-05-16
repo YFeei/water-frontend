@@ -105,12 +105,14 @@
       @current-change="handleCurrentChange"
     />
     <el-button @click="test()" />
+    <roleInfo v-if="roleInfoVisible" ref="roleInfo" @refreshList="getRecords" />
   </div>
 </template>
 
 <script>
-import { getRoleList, updateRoleStatus, updateRole, deleteRole } from '@/api/role'
+import { getRoleList, updateRoleStatus, deleteRole } from '@/api/role'
 import { hasPerm } from '@/utils/auth'
+import roleInfo from './roleInfo'
 
 export default {
   filters: {
@@ -123,6 +125,9 @@ export default {
       return statusMap[status]
     }
   },
+  components: {
+    roleInfo
+  },
   data() {
     return {
       field: 'name',
@@ -133,7 +138,8 @@ export default {
         current: 1,
         size: 10
       },
-      recordsSelections: ''
+      recordsSelections: '',
+      roleInfoVisible: false
     }
   },
   created() {
@@ -148,9 +154,15 @@ export default {
         params[this.field] = this.searchValue
       }
       getRoleList(this.data.current, this.data.size, params).then(response => {
+        console.log('resp data')
+        console.log(response)
         this.userList = response.data.records
         this.data = response.data
         this.listLoading = false
+      },
+      error => {
+        console.log('role error')
+        console.log(error)
       })
     },
     selectionChangeHandle(val) {
@@ -178,24 +190,26 @@ export default {
     },
     getRecordDetail(record) {},
     updateRecord(record) {
-      record.id = 5
+      /* record.id = 5
       record.username = 'testtest1'
       record.account = 'test1'
       record.password = 'password'
       record.rId = '1'
-      record.status = '有效'
-      updateRole(record).then(resp => {
-        console.log(resp)
-      })
+      record.status = '有效'*/
+      this.roleInfoVisible = true
+      setTimeout(() => { this.$refs.roleInfo.init1('update', record) }, 10)
     },
-    addRecord() {},
+    addRecord() {
+      this.roleInfoVisible = true
+      setTimeout(() => { this.$refs.roleInfo.init1('add', {}) }, 10)
+    },
     deleteOne(record) {
       this.$confirm('此操作将永久删除该记录, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        deleteRole({ userIds: record.id }).then(resp => {
+        deleteRole({ roleIds: record.id }).then(resp => {
           if (resp.code === 4001) {
             this.$message({
               message: '删除成功',
@@ -220,7 +234,7 @@ export default {
           idList.push(item.id)
         }
         console.log(idList.join(','))
-        deleteRole({ userIds: idList.join(',').toString() }).then(resp => {
+        deleteRole({ roleIds: idList.join(',').toString() }).then(resp => {
           if (resp.code === 4001) {
             this.$message({
               message: '删除成功',
@@ -239,7 +253,7 @@ export default {
         })
       })
     },
-    addRole() {},
+    addUser() {},
     test() {
       hasPerm('sys')
     }

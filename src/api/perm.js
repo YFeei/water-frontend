@@ -22,19 +22,19 @@ export function getPermById(id) {
   })
 }
 
-export function updatePerm({ perm }) {
+export function updatePerm(perm) {
   return request({
     url: '/sys/perm',
     method: 'put',
-    data: { perm }
+    data: { ...perm }
   })
 }
 
-export function addPerm({ perm }) {
+export function addPerm(perm) {
   return request({
     url: '/sys/perm',
     method: 'post',
-    data: { perm }
+    data: { ...perm }
   })
 }
 

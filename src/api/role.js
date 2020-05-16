@@ -34,25 +34,25 @@ export function getRoleByName(name) {
   })
 }
 
-export function updateRole({ role }) {
+export function updateRole(role) {
   return request({
     url: '/sys/role',
     method: 'put',
-    data: { role }
+    data: { ...role }
   })
 }
 
-export function addRole({ role }) {
+export function addRole(role) {
   return request({
     url: '/sys/role',
     method: 'post',
-    data: { role }
+    data: { ...role }
   })
 }
 
 export function deleteRole(roleIds) {
   return request({
-    url: '/sys/user',
+    url: '/sys/role',
     method: 'delete',
     type: 'POST',
     params: roleIds

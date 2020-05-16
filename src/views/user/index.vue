@@ -96,7 +96,7 @@
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
     />
-<!--    <el-button @click="test()" />-->
+    <!--    <el-button @click="test()" />-->
     <userInfo v-if="userInfoVisible" ref="userInfo" @refreshList="getRecords" />
   </div>
 </template>
@@ -117,6 +117,9 @@ export default {
       return statusMap[status]
     }
   },
+  components: {
+    userInfo
+  },
   data() {
     return {
       field: 'username',
@@ -130,9 +133,6 @@ export default {
       recordsSelections: '',
       userInfoVisible: false
     }
-  },
-  components: {
-    userInfo
   },
   created() {
     this.getRecords()

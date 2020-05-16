@@ -29,8 +29,8 @@
       style="width: 100%;"
       :cell-style="{paddingTop:'10px',paddingBottom:'10px'}"
       :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
+      :default-sort="{prop: 'seq', order: 'descending'}"
       @selection-change="selectionChangeHandle"
-      :default-sort = "{prop: 'seq', order: 'descending'}"
     >
       <el-table-column
         type="selection"
@@ -75,7 +75,7 @@
         label="类型"
       >
         <template slot-scope="scope">
-          <el-tag  :type="getTypeTag(scope.row.type)">{{ scope.row.type }}</el-tag>
+          <el-tag :type="getTypeTag(scope.row.type)">{{ scope.row.type }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column
@@ -85,8 +85,7 @@
         label="优先度"
         sortable
         prop="seq"
-      >
-      </el-table-column>
+      />
       <el-table-column
         header-align="center"
         align="center"
@@ -132,19 +131,21 @@
         label="操作"
       >
         <template slot-scope="scope">
-          <el-button type="success" plain size="small" @click="getRecordDetail(scope.row)">添加子权限</el-button>
+          <el-button type="success" plain size="small" @click="addChildRecord(scope.row)">添加子权限</el-button>
           <el-button type="warning" plain size="small" @click="updateRecord(scope.row)">编辑</el-button>
           <el-button type="danger" plain size="small" @click="deleteOne(scope.row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
-    <el-button @click="test()" />
+    <el-button @click="test" />
+    <permInfo v-if="permInfoVisible" ref="permInfo" @refreshList="getRecords" />
   </div>
 </template>
 
 <script>
-import { getPermList, updatePermStatus, updatePerm, deletePerm } from '@/api/perm'
+import { getPermList, updatePermStatus, deletePerms } from '@/api/perm'
 import { hasPerm } from '@/utils/auth'
+import permInfo from './permInfo'
 
 export default {
   filters: {
@@ -157,6 +158,9 @@ export default {
       return statusMap[status]
     }
   },
+  components: {
+    permInfo
+  },
   data() {
     return {
       field: 'name',
@@ -164,7 +168,8 @@ export default {
       list: null,
       listLoading: false,
       data: [],
-      recordsSelections: ''
+      recordsSelections: '',
+      permInfoVisible: false
     }
   },
   created() {
@@ -210,24 +215,24 @@ export default {
     },
     getRecordDetail(record) {},
     updateRecord(record) {
-      record.id = 5
-      record.username = 'testtest1'
-      record.account = 'test1'
-      record.password = 'password'
-      record.rId = '1'
-      record.status = '有效'
-      updatePerm(record).then(resp => {
-        console.log(resp)
-      })
+      this.permInfoVisible = true
+      setTimeout(() => { this.$refs.permInfo.init1('update', this.data, record) }, 10)
     },
-    addRecord() {},
+    addRecord() {
+      this.permInfoVisible = true
+      setTimeout(() => { this.$refs.permInfo.init1('add', this.data, {}) }, 10)
+    },
+    addChildRecord(record) {
+      this.permInfoVisible = true
+      setTimeout(() => { this.$refs.permInfo.init1('add', this.data, {}, record.id) }, 10)
+    },
     deleteOne(record) {
       this.$confirm('此操作将永久删除该记录, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        deletePerm({ userIds: record.id }).then(resp => {
+        deletePerms({ permIds: record.id }).then(resp => {
           if (resp.code === 4001) {
             this.$message({
               message: '删除成功',
@@ -252,7 +257,7 @@ export default {
           idList.push(item.id)
         }
         console.log(idList.join(','))
-        deletePerm({ userIds: idList.join(',').toString() }).then(resp => {
+        deletePerms({ permIds: idList.join(',').toString() }).then(resp => {
           if (resp.code === 4001) {
             this.$message({
               message: '删除成功',
@@ -271,7 +276,7 @@ export default {
         })
       })
     },
-    addRole() {},
+    addUser() {},
     test() {
       hasPerm('sys')
     },

@@ -22,6 +22,7 @@ router.beforeEach(async(to, from, next) => {
   const hasAToken = getAToken()
   const loadRoute = store.getters.loadRoute
   console.log('loadRoute:' + loadRoute)
+  console.log('has' + hasAToken)
   // 如果有AToken，进入下一步，否则跳到登陆界面
   if (hasAToken) {
     // 登陆界面，无需判断权限

@@ -1,5 +1,6 @@
 import { login, login2, logout, getInfo, getPerms } from '@/api/user'
-import { getToken, setToken, removeToken, setAToken, removeAToken, getAToken } from '@/utils/auth'
+import { getToken, setToken, removeToken, setAToken, removeAToken, getAToken, removeRToken, getRToken, setRToken
+  , getUserInfo, setUserInfo, removeUserInfo } from '@/utils/auth'
 import { resetRouter } from '@/router'
 
 const getDefaultState = () => {
@@ -9,7 +10,7 @@ const getDefaultState = () => {
     avatar: '',
     roles: [],
     accessToken: getAToken(),
-    refreshToken: '',
+    refreshToken: getRToken(),
     t: '',
     perms: [],
     userInfo: {},
@@ -36,10 +37,14 @@ const mutations = {
     state.roles = roles
   },
   SET_ATOKEN: (state, accessToken) => {
+    console.log('SET_ATOKEN')
     state.accessToken = accessToken
+    setAToken(accessToken)
   },
   SET_RTOKEN: (state, refreshToken) => {
+    console.log('SET_RTOKEN')
     state.refreshToken = refreshToken
+    setRToken(refreshToken)
   },
   SET_T: (state, t) => {
     state.t = t
@@ -86,6 +91,8 @@ const actions = {
         commit('SET_T', data.atExpire)
         commit('SET_USERINFO', data.user)
         setAToken(data.accessToken)
+        setRToken(data.refreshToken)
+        setUserInfo(data.user)
         console.log('store login2')
         resolve(data)
       }).catch(error => {
@@ -151,10 +158,26 @@ const actions = {
   },
 
   // user logout
+  logout2({ commit, state }) {
+    return new Promise((resolve, reject) => {
+      logout(state.token).then(() => {
+        removeAToken() // must remove  token  first
+        removeUserInfo()
+        resetRouter()
+        commit('RESET_STATE')
+        resolve()
+      }).catch(error => {
+        reject(error)
+      })
+    })
+  },
+
+  // user logout
   logout({ commit, state }) {
     return new Promise((resolve, reject) => {
       logout(state.token).then(() => {
-        removeToken() // must remove  token  first
+        removeAToken()
+        removeRToken()
         resetRouter()
         commit('RESET_STATE')
         resolve()

@@ -73,14 +73,22 @@ export function filterAsyncRoutes2(routes, perms) {
   return res
 }
 
-const state = {
-  routes: [],
-  addRoutes: [],
-  loadRoute: false,
-  isRefreshing: false
+const getDefaultState = () => {
+  return {
+    routes: [],
+    addRoutes: [],
+    loadRoute: false,
+    isRefreshing: false
+  }
 }
 
+const state = getDefaultState()
+
 const mutations = {
+  RESET_STATE: (state) => {
+    console.log('reset perm')
+    Object.assign(state, getDefaultState())
+  },
   SET_ROUTES: (state, routes) => {
     state.addRoutes = routes
     state.routes = constantRoutes.concat(routes)
@@ -124,6 +132,9 @@ const actions = {
       // commit('SET_LOADROUTE', true)
       resolve(accessedRoutes)
     })
+  },
+  reset({ commit }) {
+    commit('RESET_STATE')
   }
 }
 

@@ -35,6 +35,22 @@ export function getRToken() {
   return localStorage.getItem('RToken')
 }
 
+export function removeRToken() {
+  localStorage.removeItem('RToken')
+}
+
+export function setUserInfo(userInfo) {
+  localStorage.setItem('userInfo', userInfo)
+}
+
+export function getUserInfo() {
+  return localStorage.getItem('userInfo')
+}
+
+export function removeUserInfo() {
+  localStorage.removeItem('userInfo')
+}
+
 /* export function hasPerm(perms, perm) {
   for (let i = 0; i < perms.length; i++) {
     if (perms[i].indexOf(perm) !== -1) return true
