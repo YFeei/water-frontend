@@ -18,8 +18,8 @@
     </el-data>-->
     <el-form :inline="true" style="float:right;margin-right: 2%;">
       <el-form-item>
-        <el-button type="success" size="small" @click="addRecord">新建权限</el-button>
-        <el-button type="danger" size="small" :disabled="recordsSelections.length<=0" @click="deleteAll()">批量删除</el-button>
+        <el-button v-if="hasPerm('sys:perm:add')" type="success" size="small" @click="addRecord">新建权限</el-button>
+        <el-button v-if="hasPerm('sys:perm:del')" type="danger" size="small" :disabled="recordsSelections.length<=0" @click="deleteAll()">批量删除</el-button>
       </el-form-item>
     </el-form>
     <el-table
@@ -131,9 +131,9 @@
         label="操作"
       >
         <template slot-scope="scope">
-          <el-button type="success" plain size="small" @click="addChildRecord(scope.row)">添加子权限</el-button>
-          <el-button type="warning" plain size="small" @click="updateRecord(scope.row)">编辑</el-button>
-          <el-button type="danger" plain size="small" @click="deleteOne(scope.row)">删除</el-button>
+          <el-button v-if="hasPerm('sys:perm:add')" type="success" plain size="small" @click="addChildRecord(scope.row)">添加子权限</el-button>
+          <el-button v-if="hasPerm('sys:perm:edit')" type="warning" plain size="small" @click="updateRecord(scope.row)">编辑</el-button>
+          <el-button v-if="hasPerm('sys:perm:del')" type="danger" plain size="small" @click="deleteOne(scope.row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>

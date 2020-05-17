@@ -18,8 +18,8 @@
     </el-form>
     <el-form :inline="true" style="float:right;margin-right: 2%;">
       <el-form-item>
-        <el-button type="success" size="small" @click="addRecord">创建用户</el-button>
-        <el-button type="danger" size="small" :disabled="recordsSelections.length<=0" @click="deleteAll()">批量删除</el-button>
+        <el-button v-if="hasPerm('sys:user:add')" type="success" size="small" @click="addRecord">创建用户</el-button>
+        <el-button v-if="hasPerm('sys:user:del')" type="danger" size="small" :disabled="recordsSelections.length<=0" @click="deleteAll()">批量删除</el-button>
       </el-form-item>
     </el-form>
     <el-table
@@ -81,9 +81,9 @@
         label="操作"
       >
         <template slot-scope="scope">
-          <el-button type="primary" plain size="small" @click="getRecordDetail(scope.row)">用户详情</el-button>
-          <el-button type="warning" plain size="small" @click="updateRecord(scope.row)">编辑</el-button>
-          <el-button type="danger" plain size="small" @click="deleteOne(scope.row)">删除</el-button>
+          <el-button  type="primary" plain size="small" @click="getRecordDetail(scope.row)">用户详情</el-button>
+          <el-button v-if="hasPerm('sys:user:edit')" type="warning" plain size="small" @click="updateRecord(scope.row)">编辑</el-button>
+          <el-button v-if="hasPerm('sys:user:del')" type="danger" plain size="small" @click="deleteOne(scope.row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -98,6 +98,7 @@
     />
     <!--    <el-button @click="test()" />-->
     <userInfo v-if="userInfoVisible" ref="userInfo" @refreshList="getRecords" />
+    <userDetail v-if="userDetailVisible" ref="userDetail" @refreshList="getRecords" />
   </div>
 </template>
 
@@ -105,6 +106,7 @@
 import { getUserList, updateUserStatus, deleteUser } from '@/api/user'
 import { hasPerm } from '@/utils/auth'
 import userInfo from './userInfo'
+import userDetail from './userDetail'
 
 export default {
   filters: {
@@ -118,7 +120,8 @@ export default {
     }
   },
   components: {
-    userInfo
+    userInfo,
+    userDetail
   },
   data() {
     return {
@@ -131,7 +134,8 @@ export default {
         size: 10
       },
       recordsSelections: '',
-      userInfoVisible: false
+      userInfoVisible: false,
+      userDetailVisible: false
     }
   },
   created() {
@@ -174,7 +178,10 @@ export default {
       this.searchValue = ''
       this.getRecords()
     },
-    getRecordDetail(record) {},
+    getRecordDetail(record) {
+      this.userDetailVisible = true
+      setTimeout(() => { this.$refs.userDetail.init1(record) }, 20)
+    },
     updateRecord(record) {
       /* record.id = 5
       record.username = 'testtest1'

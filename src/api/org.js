@@ -25,3 +25,10 @@ export function getOrgListByCompId(page = 1, pageSize = 10, compId) {
     method: 'get'
   })
 }
+
+export function getOrgById(id) {
+  return request({
+    url: 'sys/org/id/' + id,
+    method: 'get'
+  })
+}

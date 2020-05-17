@@ -24,7 +24,7 @@
             placeholder="请输入权限编码"
           />
         </el-form-item>
-        <el-form-item label="列表优先度">
+        <el-form-item label="优先度">
           <el-input
             v-model="data.seq"
             placeholder="请输入优先度"

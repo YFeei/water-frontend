@@ -18,8 +18,8 @@
     </el-form>
     <el-form :inline="true" style="float:right;margin-right: 2%;">
       <el-form-item>
-        <el-button type="success" size="small" @click="addRecord">创建角色</el-button>
-        <el-button type="danger" size="small" :disabled="recordsSelections.length<=0" @click="deleteAll()">批量删除</el-button>
+        <el-button v-if="hasPerm('sys:role:add')" type="success" size="small" @click="addRecord">创建角色</el-button>
+        <el-button v-if="hasPerm('sys:role:del')" type="danger" size="small" :disabled="recordsSelections.length<=0" @click="deleteAll()">批量删除</el-button>
       </el-form-item>
     </el-form>
     <el-table
@@ -89,9 +89,9 @@
         label="操作"
       >
         <template slot-scope="scope">
-          <el-button type="primary" plain size="small" @click="getRecordDetail(scope.row)">角色详情</el-button>
-          <el-button type="warning" plain size="small" @click="updateRecord(scope.row)">编辑</el-button>
-          <el-button type="danger" plain size="small" @click="deleteOne(scope.row)">删除</el-button>
+<!--          <el-button type="primary" plain size="small" @click="getRecordDetail(scope.row)">角色详情</el-button>-->
+          <el-button v-if="hasPerm('sys:role:edit')" type="warning" plain size="small" @click="updateRecord(scope.row)">编辑</el-button>
+          <el-button v-if="hasPerm('sys:role:del')" type="danger" plain size="small" @click="deleteOne(scope.row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>

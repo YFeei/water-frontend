@@ -162,7 +162,7 @@ export const asyncRoutes = [
         path: 'index',
         name: '用户管理',
         component: () => import('@/views/user/index'),
-        meta: { title: '用户管理', icon: 'table', perms: ['list'] }
+        meta: { title: '用户管理', icon: 'table', perms: ['sys:user'] }
       }
     ]
   },
@@ -174,7 +174,7 @@ export const asyncRoutes = [
         path: 'index',
         name: '角色管理',
         component: () => import('@/views/role/index'),
-        meta: { title: '角色管理', icon: 'table', perms: ['list'] }
+        meta: { title: '角色管理', icon: 'table', perms: ['sys:role'] }
       }
     ]
   },
@@ -186,7 +186,7 @@ export const asyncRoutes = [
         path: 'index',
         name: '权限管理',
         component: () => import('@/views/perm/index'),
-        meta: { title: '权限管理', icon: 'table', perms: ['list'] }
+        meta: { title: '权限管理', icon: 'table', perms: ['sys:perm'] }
       }
     ]
   },

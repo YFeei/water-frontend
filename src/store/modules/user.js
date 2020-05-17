@@ -13,7 +13,7 @@ const getDefaultState = () => {
     refreshToken: getRToken(),
     t: '',
     perms: [],
-    userInfo: {},
+    userInfo: getUserInfo(),
     cachePerms: false
   }
 }
@@ -178,6 +178,7 @@ const actions = {
       logout(state.token).then(() => {
         removeAToken()
         removeRToken()
+        removeUserInfo()
         resetRouter()
         commit('RESET_STATE')
         resolve()

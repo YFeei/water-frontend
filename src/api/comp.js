@@ -11,3 +11,10 @@ export function getCompList(page = 1, pageSize = 10, search) {
     params: params
   })
 }
+
+export function getCompById(id) {
+  return request({
+    url: 'sys/com/id/' + id,
+    method: 'get'
+  })
+}
