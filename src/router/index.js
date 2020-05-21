@@ -191,6 +191,42 @@ export const asyncRoutes = [
     ]
   },
   {
+    path: '/comp',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        name: '公司管理',
+        component: () => import('@/views/company/index'),
+        meta: { title: '公司管理', icon: 'company', perms: ['list'] }
+      }
+    ]
+  },
+  {
+    path: '/org',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        name: '机构管理',
+        component: () => import('@/views/organization/index'),
+        meta: { title: '机构管理', icon: 'organization', perms: ['list'] }
+      }
+    ]
+  },
+  {
+    path: '/build',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        name: '楼栋管理',
+        component: () => import('@/views/building/index'),
+        meta: { title: '楼栋管理', icon: 'building', perms: ['list'] }
+      }
+    ]
+  },
+  {
     path: 'external-link',
     component: Layout,
     children: [
